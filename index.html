@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>插入用户数据</title>
+</head>
+<body>
+  <h1>插入用户数据</h1>
+  <form id="userForm">
+    
+    <button type="submit">提交</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    document.getElementById('userForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const age = document.getElementById('age').value;
+      const resultDiv = document.getElementById('result');
+      try {
+        const res = await fetch('http://localhost:3000/api/insert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, age })
+        });
+        const data = await res.json();
+        if (data.success) {
+          resultDiv.textContent = '插入成功，ID: ' + data.id;
+        } else {
+          resultDiv.textContent = '插入失败: ' + (data.error || '未知错误');
+        }
+      } catch (err) {
+        resultDiv.textContent = '请求出错: ' + err;
+      }
+    });
+  </script>
+</body>
+</html> 
