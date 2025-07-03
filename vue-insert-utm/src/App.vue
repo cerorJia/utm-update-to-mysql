@@ -8,7 +8,47 @@ const utmJson = computed(() => utm.value ? JSON.stringify(utm.value, null, 2) : 
 onMounted(() => {
   utm.value = UtmTracker.get()
 })
+function generateAndAppendUtmParams() {
+  // 获取随机合法值的函数
+  function getRandomValue() {
+    return Math.random().toString(36).substring(2, 7);
+  }
+
+  // utm_source 合法取值范围
+  const utmSourceOptions = ['baidu', 'bd', 'google', 'safari', 'tx', 'qq', 'wx'];
+
+  // 随机选择一个 utm_source 值
+  const utmSource = utmSourceOptions[
+    Math.floor(Math.random() * utmSourceOptions.length)
+  ];
+
+  // 生成其他UTM参数的随机值
+  const utmParams = {
+    utm_source: utmSource,
+    utm_medium: getRandomValue(),
+    utm_campaign: getRandomValue(),
+    utm_term: getRandomValue(),
+    utm_content: getRandomValue()
+  };
+
+  // 构造带UTM参数的URL
+  let urlWithParams = window.location.href.split('?')[0] + '?';
+  const paramsArray = [];
+
+  for (const key in utmParams) {
+    paramsArray.push(`${key}=${encodeURIComponent(utmParams[key])}`);
+  }
+
+  urlWithParams += paramsArray.join('&');
+
+  // 更新当前页面的URL
+  window.history.pushState({}, '', urlWithParams);
+
+  // 触发按钮点击事件
+  submit();
+}
   const submit = async () => {
+    utm.value = UtmTracker.get()
     try {
       if (!utm.value) {
         console.error('utm数据为空');
@@ -64,7 +104,7 @@ onMounted(() => {
     <pre style="background: #f6f8fa; padding: 16px; border-radius: 8px; text-align: left;">
       {{ utmJson }}
     </pre>
-    <button @click="submit()">提交到数据库</button>
+    <button @click="generateAndAppendUtmParams()">提交到数据库</button>
   </div>
 </template>
 
