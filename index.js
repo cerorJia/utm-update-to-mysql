@@ -1,22 +1,24 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const port = 3888;
 
 // 允许跨域
 app.use(cors());
 // 解析 JSON 请求体
 app.use(express.json());
 
+
 // 配置 MySQL 连接
 const db = mysql.createConnection({
-  host: '192.168.10.101',
-  port: 4000,
-  user: 'root', // 请根据你的实际用户名修改
-  password: '123456', // 请根据你的实际密码修改
-  database: 'utm' // 请根据你的实际数据库名修改
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  port: process.env.DB_PORT,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 db.connect((err) => {
@@ -117,7 +119,7 @@ app.post('/api/log', express.raw({ type: '*/*' }), (req, res) => {
     }
   }
 
-  // 获取用户唯一标识（这里用浏览器指纹码）
+  // 获取用户唯一标识（这里用前端传输过来的请求头中的 userId）
   const userId =req.headers.userid;
   const now = Date.now();
   const last = userHeartbeats.get(userId);

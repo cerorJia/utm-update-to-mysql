@@ -8,6 +8,9 @@ const utm = ref(null)
 const utmJson = computed(() => utm.value ? JSON.stringify(utm.value, null, 2) : '正在获取...')
 const userId= ref(null)
 
+// 读取Vite环境变量
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 onMounted(() => {
   utm.value = UtmTracker.get()
    userId.value = localStorage.getItem('userid');
@@ -82,9 +85,9 @@ function generateAndAppendUtmParams() {
         url: utm.value.url || ''
       };
 
-      const res = await fetch('http://192.168.3.9:3000/api/insert', {
+      const res = await fetch(API_URL+'/api/insert', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json',userid:userId.value },
+        headers: { 'Content-Type': 'application/json', userid: userId.value },
         body: JSON.stringify(requestData)
       });
       
