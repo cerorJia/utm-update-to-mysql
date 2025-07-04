@@ -1,12 +1,19 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import {v4 as udidv4 } from 'udid'
 import UtmTracker from 'utm-params-extractor-test'
 
 const utm = ref(null)
 const utmJson = computed(() => utm.value ? JSON.stringify(utm.value, null, 2) : '正在获取...')
+const userId= ref(null)
 
 onMounted(() => {
   utm.value = UtmTracker.get()
+   userId.value = localStorage.getItem('userid');
+  if (!userId.value) {
+    userId.value = uuidv4();
+    localStorage.setItem('userid', userId.value);
+  }
 })
 function generateAndAppendUtmParams() {
   // 获取随机合法值的函数
@@ -76,7 +83,7 @@ function generateAndAppendUtmParams() {
 
       const res = await fetch('http://192.168.3.9:3000/api/insert', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',userid:userId.value },
         body: JSON.stringify(requestData)
       });
       

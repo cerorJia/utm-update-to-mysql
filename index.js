@@ -44,7 +44,7 @@ app.post('/api/insert', (req, res) => {
     timestamp,
     url
   } = req.body;
-  const userId = req.session.userid;
+  const userId = req.headers.userid;
 
   const sql = `INSERT INTO data (
     utm_source,
