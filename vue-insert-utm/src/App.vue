@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import {v4 as udidv4 } from 'udid'
+import { v4 as uuidv4 } from 'uuid';
+
 import UtmTracker from 'utm-params-extractor-test'
 
 const utm = ref(null)
