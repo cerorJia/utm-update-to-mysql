@@ -44,6 +44,7 @@ app.post('/api/insert', (req, res) => {
     timestamp,
     url
   } = req.body;
+  const userId = req.session.userid;
 
   const sql = `INSERT INTO data (
     utm_source,
@@ -58,8 +59,9 @@ app.post('/api/insert', (req, res) => {
     os_type,
     os_version,
     timestamp,
-    url
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    url,
+    user_id
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const params = [
     utm_source || '',
@@ -74,7 +76,8 @@ app.post('/api/insert', (req, res) => {
     osType || '',
     osVersion || '',
     timestamp || '',
-    url || ''
+    url || '',
+    userId || '',
   ];
 
   db.query(sql, params, (err, result) => {
@@ -97,7 +100,7 @@ const userHeartbeats = new Map();
 // 兼容 sendBeacon 和普通 POST 的插入日志接口
 app.post('/api/log', express.raw({ type: '*/*' }), (req, res) => {
   let data = {};
-  console.log(req.headers.heartbeatseconds);
+  // console.log(req.headers);
   // 读取心跳毫秒数（推荐用小写横线风格）
   const heartbeatMilliseconds = parseInt(req.headers['heartbeatseconds'], 10) || 10000;
   
@@ -114,8 +117,8 @@ app.post('/api/log', express.raw({ type: '*/*' }), (req, res) => {
     }
   }
 
-  // 获取用户唯一标识（这里用IP）
-  const userId = req.ip;
+  // 获取用户唯一标识（这里用浏览器指纹码）
+  const userId =req.headers.userid;
   const now = Date.now();
   const last = userHeartbeats.get(userId);
 
@@ -139,13 +142,15 @@ app.post('/api/log', express.raw({ type: '*/*' }), (req, res) => {
   const sql = `INSERT INTO log (
     event_type,
     text,
-    timestamp
-  ) VALUES (?, ?, ?)`;
+    timestamp,
+    user_id
+  ) VALUES (?, ?, ?, ?)`;
 
   const params = [
     eventType || '',
     text || '',
-    timestamp || new Date().toISOString()
+    timestamp || new Date().toISOString(),
+    userId
   ];
 
   db.query(sql, params, (err, result) => {
